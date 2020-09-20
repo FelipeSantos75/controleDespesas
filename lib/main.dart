@@ -41,6 +41,7 @@ class ExpensesApp extends StatelessWidget {
                   fontFamily: 'OpenSans',
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
         ),
@@ -56,25 +57,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transactions> transactions = [
-    Transactions(
-      id: 't1',
-      date: DateTime.now().subtract(Duration(days: 3)),
-      title: 'Conta 1',
-      value: 900,
-    ),
-    Transactions(
-      id: 't2',
-      date: DateTime.now().subtract(Duration(days: 5)),
-      title: 'Conta 2',
-      value: 550,
-    ),
-    
+    //    Transactions(
+    //      id: 't1',
+    //      date: DateTime.now().subtract(Duration(days: 3)),
+    //      title: 'Conta 1',
+    //      value: 400,
+    //    ),
+    //    Transactions(
+    //      id: 't2',
+    //      date: DateTime.now().subtract(Duration(days: 5)),
+    //      title: 'Conta 2',
+    //      value: 150,
+    //    ),
   ];
 
-  _addTransaction(String titulo, double valor) {
+  _addTransaction(String titulo, double valor, DateTime date) {
     final newTransacion = Transactions(
       id: Random().nextDouble().toString(),
-      date: DateTime.now(),
+      date: date,
       title: titulo,
       value: valor,
     );
@@ -84,6 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Navigator.of(context).pop();
+  }
+
+  _removeTransaction(String id) {
+    setState(() {
+      transactions.removeWhere((element) => element.id == id);
+    });
   }
 
   _openTransactionFormModal(BuildContext context) {
@@ -109,13 +115,30 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
         title: Text('Despesas Pessoais'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Chart(transactions),
-          TransactionsList(transactions),
-        ],
+      body: ListView(
+              children: [
+    Column(
+  
+            
+  
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+  
+            mainAxisAlignment: MainAxisAlignment.start,
+  
+            children: <Widget>[
+  
+              Chart(transactions),
+  
+              transactions.isEmpty
+  
+                  ? TransactionsEmpty()
+  
+                  : TransactionsList(transactions, _removeTransaction),
+  
+            ],
+  
+          ),
+],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -123,6 +146,31 @@ class _MyHomePageState extends State<MyHomePage> {
           _openTransactionFormModal(context);
         },
       ),
+    );
+  }
+}
+
+class TransactionsEmpty extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        Text(
+          'Nenhuma Transação Registrada',
+          style: Theme.of(context).textTheme.headline6,
+        ),
+        Container(
+          height: 200,
+          margin: EdgeInsets.all(50),
+          child: Image.asset(
+            'assets/waiting.png',
+            fit: BoxFit.contain,
+          ),
+        )
+      ],
     );
   }
 }
