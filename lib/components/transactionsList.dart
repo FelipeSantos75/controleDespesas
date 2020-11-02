@@ -12,7 +12,8 @@ class TransactionsList extends StatelessWidget {
   TransactionsList(this.transactions, this.onRemove);
   @override
   Widget build(BuildContext context) {
-    return Container(height: 350,
+    return Container(
+      
     
     child: ListView.builder(
         itemCount: transactions.length,

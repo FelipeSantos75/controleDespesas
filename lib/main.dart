@@ -103,42 +103,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var appBar = AppBar(
+      actions: [
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            _openTransactionFormModal(context);
+          },
+        ),
+      ],
+      title: Text('Despesas Pessoais'),
+    );
+    var alturaDisponivel = MediaQuery.of(context).size.height
+    - appBar.preferredSize.height;
+    
+
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _openTransactionFormModal(context);
-            },
-          ),
-        ],
-        title: Text('Despesas Pessoais'),
-      ),
-      body: ListView(
-              children: [
-    Column(
-  
-            
-  
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-  
-            mainAxisAlignment: MainAxisAlignment.start,
-  
-            children: <Widget>[
-  
-              Chart(transactions),
-  
-              transactions.isEmpty
-  
-                  ? TransactionsEmpty()
-  
-                  : TransactionsList(transactions, _removeTransaction),
-  
-            ],
-  
-          ),
-],
+      appBar: appBar,
+      body: SingleChildScrollView(
+              child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              height: alturaDisponivel * 0.4,
+              child: Chart(transactions),
+            ),
+            transactions.isEmpty
+                ? Container(
+                     height: alturaDisponivel * 0.6,
+                    child: TransactionsEmpty(),
+                  )
+                : Container(
+                     height: alturaDisponivel * 0.6,
+                    child: TransactionsList(transactions, _removeTransaction),
+                  ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
