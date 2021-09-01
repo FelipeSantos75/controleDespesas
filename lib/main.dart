@@ -2,7 +2,7 @@ import 'dart:math';
 
 //import 'package:controleDespesas/components/TransactionsUser.dart';
 import 'package:controleDespesas/components/chart.dart';
-import 'package:controleDespesas/components/chartBar.dart';
+
 import 'package:controleDespesas/components/transactionsForms.dart';
 import 'package:controleDespesas/components/transactionsList.dart';
 import 'package:controleDespesas/models/transactions.dart';
@@ -17,6 +17,7 @@ class ExpensesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
       theme: ThemeData(
         primarySwatch: Colors.purple,
@@ -56,6 +57,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _showChart = false;
   final List<Transactions> transactions = [
     //    Transactions(
     //      id: 't1',
@@ -103,9 +105,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     var appBar = AppBar(
       actions: [
+        if(isLandscape)
         IconButton(
+          icon: Icon(_showChart ? Icons.list : Icons.bar_chart),
+          onPressed: () {
+            setState(() {
+              _showChart = !_showChart;
+            });
+            
+          },
+        ),IconButton(
           icon: Icon(Icons.add),
           onPressed: () {
             _openTransactionFormModal(context);
@@ -114,30 +127,33 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
       title: Text('Despesas Pessoais'),
     );
-    var alturaDisponivel = MediaQuery.of(context).size.height
-    - appBar.preferredSize.height;
-    
+    var alturaDisponivel = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
 
     return Scaffold(
       appBar: appBar,
       body: SingleChildScrollView(
-              child: Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Container(
-              height: alturaDisponivel * 0.4,
-              child: Chart(transactions),
-            ),
-            transactions.isEmpty
-                ? Container(
-                     height: alturaDisponivel * 0.6,
-                    child: TransactionsEmpty(),
-                  )
-                : Container(
-                     height: alturaDisponivel * 0.6,
-                    child: TransactionsList(transactions, _removeTransaction),
-                  ),
+            
+            if (_showChart || !isLandscape)
+              Container(
+                height: alturaDisponivel * (isLandscape ? 0.7 : 0.3),
+                child: Chart(transactions),
+              ),
+            if (!_showChart || !isLandscape)
+              transactions.isEmpty
+                  ? Container(
+                      height: alturaDisponivel * 0.5,
+                      child: TransactionsEmpty(),
+                    )
+                  : Container(
+                      height: alturaDisponivel * (isLandscape ? 0.8 : 0.6),
+                      child: TransactionsList(transactions, _removeTransaction),
+                    ),
           ],
         ),
       ),
@@ -154,24 +170,34 @@ class _MyHomePageState extends State<MyHomePage> {
 class TransactionsEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 20,
-        ),
-        Text(
-          'Nenhuma Transação Registrada',
-          style: Theme.of(context).textTheme.headline6,
-        ),
-        Container(
-          height: 200,
-          margin: EdgeInsets.all(50),
-          child: Image.asset(
-            'assets/waiting.png',
-            fit: BoxFit.contain,
-          ),
-        )
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Column(
+          children: [
+            SizedBox(
+              height: constraints.maxHeight * 0.05,
+            ),
+            Container(
+              height: constraints.maxHeight * 0.2,
+              child: Text(
+                'Nenhuma Transação Registrada',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            SizedBox(
+              height: constraints.maxHeight * 0.05,
+            ),
+            Container(
+              height: constraints.maxHeight * 0.7,
+              //margin: EdgeInsets.all(5),
+              child: Image.asset(
+                'assets/waiting.png',
+                fit: BoxFit.contain,
+              ),
+            )
+          ],
+        );
+      },
     );
   }
 }
